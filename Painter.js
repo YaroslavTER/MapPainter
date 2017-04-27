@@ -2,8 +2,8 @@ var canvas = document.getElementById('map_id')
 var ctx = canvas.getContext('2d')
 
 const PART_NUMBER = 32
-const FIELD_HEIGHT = 50
-const PART_HEIGHT = FIELD_HEIGHT/PART_NUMBER
+const FIELD_HEIGHT = 100//50
+const PART_HEIGHT = 10//FIELD_HEIGHT/PART_NUMBER
 
 var map = [
 			['g', 'g', 'p', 'g', 'g', 'p', 'g', 'g'],
@@ -39,45 +39,37 @@ function drawImage(src, x, y) {
 	img.src = src
 }
 
-function drawField() {
+function drawField(field, colors) {
 	ctx.fillStyle = '#e1e5ed'
 	ctx.fillRect(0, 0, FIELD_HEIGHT, FIELD_HEIGHT)
+	for (color of colors) {
+		drawParticle(generateParticles(color, field.x, field.y))
+	}
+}
 
-	let colors = ['#006010', '#1cb235', '#0bed31']
-	let particles = generateParticles(colors[0], 0, 0)
-	let particle
-	let number = colors.length
-    let counter = 0
-	while(counter < particles.length) {
-		particle = particles[counter]
+function drawParticle(particles) {
+	for (particle of particles) {
 		ctx.fillStyle = particle.color
 		ctx.fillRect(particle.x, particle.y, PART_HEIGHT, PART_HEIGHT)
-		counter++
 	}
 }
 
-//drawField()
-
-function makeSetOfParticles(inputColor, x, y) {
-	let number = 10
-	let counter = 0
-	while(counter < number) {
-		particles.insert(generateParticles())
-		counter++
-	}
-}
+drawField({x: 0, y: 0}, ['#006010', '#1cb235', '#0bed31'])
 
 function generateParticles(inputColor, x, y) {
-	let number = 10
+	let number = 20
 	let particles = []
 	let counter = 0
 	while(counter < number) {
-		particles.push({color: inputColor,
-			            x: randFor(0, FIELD_HEIGHT - PART_HEIGHT) + x,
-			            y: randFor(0, FIELD_HEIGHT - PART_HEIGHT) + y})
+		particles.push({color: inputColor, x: getPosition() + x,
+			            			       y: getPosition() + y})
 		counter++
 	}
 	return particles
+}
+
+function getPosition() {
+	return randFor(0, FIELD_HEIGHT - PART_HEIGHT)  
 }
 
 function randFor(min, max) {
@@ -95,4 +87,4 @@ function choiseSrc(element) {
 	return src
 }
 
-drawMap()
+//drawMap()
