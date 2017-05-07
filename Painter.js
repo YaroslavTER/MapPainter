@@ -5,7 +5,11 @@ const PART_NUMBER = 10
 const FIELD_HEIGHT = 100
 const PART_HEIGHT = FIELD_HEIGHT / PART_NUMBER
 
-var map = [
+const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1]
+const HEIGHT = 10
+const WIDTH = HEIGHT
+
+var map = []/*
 	['g', 'g', 'p', 'g', 'g', 'p', 'g', 'g'],
 	['g', 'g', 'p', 'g', 'g', 'p', 'g', 'g'],
 	['g', 'g', 'p', 'p', 'p', 'p', 'g', 'g'],
@@ -16,16 +20,21 @@ var map = [
 	['w', 'g', 'p', 'p', 'p', 'p', 'g', 'g'],
 	['w', 'g', 'g', 'g', 'g', 'p', 'g', 'g'],
 	['g', 'g', 'g', 'g', 'g', 'p', 'g', 'g'],
-]
+]*/
 
-const getRandom = array => array[~~(Math.random() * (array.length - 1)) + 1]
+function setMap(element) {
+	for (let x = 0; x < HEIGHT; x++) {
+		let line = []
+		for (let y = 0; y < WIDTH; y++) {
+			line.push(element)
+		}
+		map.push(line)
+	}
+}
 
 function drawMap() {
-	const height = map.length
-	const width = map[0].length
-
-	for (let x = 0; x < height; x++) {
-		for (let y = 0; y < width; y++) {
+	for (let x = 0; x < HEIGHT; x++) {
+		for (let y = 0; y < WIDTH; y++) {
 			const type = map[x][y]
 			drawTile(type, y * FIELD_HEIGHT, x * FIELD_HEIGHT, tiles[type])
 			// choiseColor(type, y * FIELD_HEIGHT, x * FIELD_HEIGHT)
@@ -47,7 +56,8 @@ function drawTile(type, px, py, colors) {
 		for (y = 0; y < PART_HEIGHT; ++y) {
 			if (Math.random() > 0.66) {
 				ctx.fillStyle = colors[~~(Math.random() * 3) + 1]
-				ctx.fillRect(px + x * PART_HEIGHT, py + y * PART_HEIGHT, PART_HEIGHT, PART_HEIGHT);
+				ctx.fillRect(px + x * PART_HEIGHT, py + y * PART_HEIGHT,
+					                               PART_HEIGHT, PART_HEIGHT);
 			}
 		}
 	}
@@ -92,10 +102,6 @@ function getPosition() {
 	return randFor(0, FIELD_HEIGHT - PART_HEIGHT)
 }
 
-function randFor(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
 function choiseColor(element, x, y) {
 	let mainColor
 	let colors
@@ -109,11 +115,64 @@ function choiseColor(element, x, y) {
 		mainColor = '#0d8ac4'
 		colors = ['#60c4f2', '#c2e8f9', '#268fbf']
 	}
+
 	drawField({
 		x: x,
 		y: y
 	}, mainColor, colors)
 }
 
-ctx.filter = 'contrast(75%)'
+function generatePathFrom(x, y) {
+	let direction = startDirection(x, y)
+	let turnCoef = HEIGHT/4
+	let steps = randFor(1, turnCoef)
+	while(continueStep(x) && continueStep(y)) {
+		let step = 0
+		while(step < steps && continueStep(x) && continueStep(y)) {
+			console.log(x, y)
+			map[x][y] = 'p'
+			if(direction == 0)
+				x++
+			else if(direction == 1)
+				x--
+			else if(direction == 2)
+				y++
+			else if(direction == 3)
+				y--
+			step++
+		}
+		step = 0
+		steps = randFor(1, turnCoef)
+		direction = randFor(0, 3)
+	}
+}
+/*
+	0 - down
+	1 - up
+	2 - right
+	3 - left
+*/
+function startDirection(x, y) {
+	if(x == 0)
+		return 0
+	else if(x == HEIGHT - 1)
+		return 1
+	else if(y == 0)
+		return 2
+	else if(y == WIDTH - 1)
+		return 3
+}
+
+function randFor(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function continueStep(value) {
+	return  value < HEIGHT && value < WIDTH && value >= 0
+}
+
+setMap('g')
+generatePathFrom(2, 0)
+generatePathFrom(HEIGHT - 1, 4)
+//ctx.filter = 'contrast(75%)'
 drawMap()
