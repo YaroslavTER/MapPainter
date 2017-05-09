@@ -6,8 +6,8 @@ const FIELD_HEIGHT = 100
 const PART_HEIGHT = FIELD_HEIGHT / PART_NUMBER
 
 const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1]
-const HEIGHT = 10
-const WIDTH = HEIGHT
+const HEIGHT = 9
+const WIDTH = 10
 
 var map = []/*
 	['g', 'g', 'p', 'g', 'g', 'p', 'g', 'g'],
@@ -124,11 +124,11 @@ function choiseColor(element, x, y) {
 
 function generatePathFrom(x, y) {
 	let direction = startDirection(x, y)
-	let turnCoef = HEIGHT/4
+	let turnCoef = HEIGHT/2
 	let steps = randFor(1, turnCoef)
-	while(continueStep(x) && continueStep(y)) {
+	while(continueStep(x, y)) {
 		let step = 0
-		while(step < steps && continueStep(x) && continueStep(y)) {
+		while(step < steps && continueStep(x, y)) {
 			console.log(x, y)
 			map[x][y] = 'p'
 			if(direction == 0)
@@ -167,8 +167,8 @@ function randFor(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function continueStep(value) {
-	return  value < HEIGHT && value < WIDTH && value >= 0
+function continueStep(x, y) {
+	return  x < HEIGHT && y < WIDTH && x >= 0 && y >= 0
 }
 
 setMap('g')
