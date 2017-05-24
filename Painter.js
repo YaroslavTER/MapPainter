@@ -9,6 +9,12 @@ const WIDTH = 30;
 
 var mouseX = 0
 var mouseY = 0
+var xBegin = 0
+var xEnd = 0
+var yBegin = 0
+var yEnd = 0
+var xShift = 0
+var yShift = 0
 
 var map = [];
 const tilesTypes = ["grass", "path", "water"];
@@ -19,44 +25,13 @@ function setMap(element) {
   }
 }
 
-function getMousePos(canvas, evt) {
-  var rect = canvas.getBoundingClientRect()
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
-  };
-}
-
-canvas.addEventListener('mousemove', function(evt) {
-  let mousePos = getMousePos(canvas, evt)
-  mouseX = mousePos.x
-  mouseY = mousePos.y
-  for (let x = 0; x < HEIGHT; x++) {
-    for (let y = 0; y < WIDTH; y++) {
-      let xBegin = x*FIELD_HEIGHT
-      let xEnd = x*FIELD_HEIGHT + FIELD_HEIGHT
-      let yBegin = y*FIELD_HEIGHT
-      let yEnd = y*FIELD_HEIGHT + FIELD_HEIGHT
-      if(mouseX >= xBegin && mouseX <= xEnd &&
-         mouseY >= yBegin && mouseY <= yEnd) {
-         ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
-         drawField()
-         ctx.fillStyle = "black"
-         ctx.globalAlpha = 0.3
-         ctx.fillRect(xBegin, yBegin, FIELD_HEIGHT, FIELD_HEIGHT)
-         ctx.globalAlpha = 1
-      }
-    }
-  }
-}, false);
-
 function drawField(field, mainColor, colors) {
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
       ctx.putImageData(
         tilesData[map[x][y]],
-        x * FIELD_HEIGHT,
-        y * FIELD_HEIGHT
+        x * FIELD_HEIGHT + xShift,
+        y * FIELD_HEIGHT + yShift
       );
     }
   }
@@ -120,20 +95,48 @@ function generateMap() {
   }
 }
 
+function getMousePos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect()
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+
+canvas.addEventListener('mousemove', function(evt) {
+  let mousePos = getMousePos(canvas, evt)
+  mouseX = mousePos.x
+  mouseY = mousePos.y
+  for (let x = 0; x < HEIGHT; x++) {
+    for (let y = 0; y < WIDTH; y++) {
+      xBegin = x*FIELD_HEIGHT
+      xEnd = x*FIELD_HEIGHT + FIELD_HEIGHT
+      yBegin = y*FIELD_HEIGHT
+      yEnd = y*FIELD_HEIGHT + FIELD_HEIGHT
+      if(mouseX >= xBegin && mouseX <= xEnd &&
+         mouseY >= yBegin && mouseY <= yEnd) {
+         ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
+         drawField()
+         ctx.fillStyle = 'black'
+         ctx.globalAlpha = 0.3
+         ctx.fillRect(xBegin, yBegin, FIELD_HEIGHT, FIELD_HEIGHT)
+         ctx.globalAlpha = 1
+         x = HEIGHT
+         y = WIDTH
+      }
+    }
+  }
+}, false);
+
+canvas.addEventListener('click', function(evt) {
+  let clickX = evt.clientX
+  let clickY = evt.clientY
+  if(clickX >= xBegin && clickX <= xEnd + FIELD_HEIGHT &&
+     clickY >= yBegin && clickY <= yEnd + FIELD_HEIGHT) {
+    console.log('x ' + xBegin, 'y ' + yBegin)
+  }
+}, false);
+
 setMap("grass");
 generateMap()
-
-document.addEventListener('keydown', function(event) {
-  let keycode = (event.keyCode ? event.keyCode : event.which)
-  let moveCoef = 5
-  if(event.which == 39) {//right arrow
-    xMove -= moveCoef
-  } else if(event.which == 37) {//left arrow
-    xMove += moveCoef
-  } else if(event.which == 38) {//up arrow
-    yMove -= moveCoef
-  } else if(event.which == 40) {//left arrow
-    yMove += moveCoef
-  }
-  drawField()
-})
+drawField()
