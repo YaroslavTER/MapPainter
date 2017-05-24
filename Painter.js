@@ -3,9 +3,12 @@ var ctx = canvas.getContext("2d");
 
 const FIELD_HEIGHT = 32;
 
-const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1];
+const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1]
 const HEIGHT = 30;
 const WIDTH = 30;
+
+var mouseX = 0
+var mouseY = 0
 
 var map = [];
 const tilesTypes = ["grass", "path", "water"];
@@ -15,6 +18,37 @@ function setMap(element) {
     map[x] = new Array(WIDTH).fill(element);
   }
 }
+
+function getMousePos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect()
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+
+canvas.addEventListener('mousemove', function(evt) {
+  let mousePos = getMousePos(canvas, evt)
+  mouseX = mousePos.x
+  mouseY = mousePos.y
+  for (let x = 0; x < HEIGHT; x++) {
+    for (let y = 0; y < WIDTH; y++) {
+      let xBegin = x*FIELD_HEIGHT
+      let xEnd = x*FIELD_HEIGHT + FIELD_HEIGHT
+      let yBegin = y*FIELD_HEIGHT
+      let yEnd = y*FIELD_HEIGHT + FIELD_HEIGHT
+      if(mouseX >= xBegin && mouseX <= xEnd &&
+         mouseY >= yBegin && mouseY <= yEnd) {
+         ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
+         drawField()
+         ctx.fillStyle = "black"
+         ctx.globalAlpha = 0.3
+         ctx.fillRect(xBegin, yBegin, FIELD_HEIGHT, FIELD_HEIGHT)
+         ctx.globalAlpha = 1
+      }
+    }
+  }
+}, false);
 
 function drawField(field, mainColor, colors) {
   for (let x = 0; x < HEIGHT; x++) {
@@ -39,7 +73,6 @@ function generatePathFrom(x, y) {
   while (continueStep(x, y)) {
     let step = 0;
     while (step < steps && continueStep(x, y)) {
-      console.log(x, y);
       map[x][y] = "path";
       if (direction == 0) x++;
       else if (direction == 1) x--;
@@ -66,27 +99,41 @@ function startDirection(x, y) {
 }
 
 function randFor(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 function continueStep(x, y) {
-  return x < HEIGHT && y < WIDTH && x >= 0 && y >= 0;
+  return x < HEIGHT && y < WIDTH && x >= 0 && y >= 0
 }
 
 function generateMap() {
-  noise.seed(Math.random());
-  let x = 3;
-  let y = 0;
-  let i = 0;
+  noise.seed(Math.random())
+  let x = 3
+  let y = 0
+  let i = 0
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
-      var value = noise.simplex2(x / 40, y / 40);
-      value = Math.abs(~~(value * 5));
-      map[x][y] = tilesTypes[value] || "path";
+      let value = noise.simplex2(x / 40, y / 40)
+      value = Math.abs(~~(value * 5))
+      map[x][y] = tilesTypes[value] || "path"
     }
   }
 }
 
 setMap("grass");
-generateMap();
-drawField();
+generateMap()
+
+document.addEventListener('keydown', function(event) {
+  let keycode = (event.keyCode ? event.keyCode : event.which)
+  let moveCoef = 5
+  if(event.which == 39) {//right arrow
+    xMove -= moveCoef
+  } else if(event.which == 37) {//left arrow
+    xMove += moveCoef
+  } else if(event.which == 38) {//up arrow
+    yMove -= moveCoef
+  } else if(event.which == 40) {//left arrow
+    yMove += moveCoef
+  }
+  drawField()
+})
