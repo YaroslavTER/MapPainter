@@ -15,8 +15,6 @@ var yBegin = 0
 var yEnd = 0
 var xShift = 0
 var yShift = 0
-var xLast = 0
-var yLast = 0
 
 var isPressed = false
 
@@ -30,7 +28,6 @@ function setMap(element) {
 }
 
 function drawField(field, mainColor, colors) {
-
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
       ctx.putImageData(
@@ -129,8 +126,8 @@ canvas.addEventListener('mousemove', function(evt) {
          x = HEIGHT
          y = WIDTH
          if(isPressed) {
-           xShift = -xBegin
-           yShift = -yBegin
+           xShift = mouseX - 500
+           yShift = mouseY - 500
          }
       }
     }
@@ -152,8 +149,6 @@ canvas.addEventListener('mousedown', function(evt) {
 
 canvas.addEventListener('mouseup', function(evt) {
   isPressed = false
-  xLast = xBegin
-  yLast = yBegin
 }, false);
 
 setMap("grass");
