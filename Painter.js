@@ -15,6 +15,10 @@ var yBegin = 0
 var yEnd = 0
 var xShift = 0
 var yShift = 0
+var xLast = 0
+var yLast = 0
+
+var isPressed = false
 
 var map = [];
 const tilesTypes = ["grass", "path", "water"];
@@ -26,6 +30,7 @@ function setMap(element) {
 }
 
 function drawField(field, mainColor, colors) {
+
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
       ctx.putImageData(
@@ -123,6 +128,10 @@ canvas.addEventListener('mousemove', function(evt) {
          ctx.globalAlpha = 1
          x = HEIGHT
          y = WIDTH
+         if(isPressed) {
+           xShift = -xBegin
+           yShift = -yBegin
+         }
       }
     }
   }
@@ -135,6 +144,16 @@ canvas.addEventListener('click', function(evt) {
      clickY >= yBegin && clickY <= yEnd + FIELD_HEIGHT) {
     console.log('x ' + xBegin, 'y ' + yBegin)
   }
+}, false);
+
+canvas.addEventListener('mousedown', function(evt) {
+  isPressed = true
+}, false);
+
+canvas.addEventListener('mouseup', function(evt) {
+  isPressed = false
+  xLast = xBegin
+  yLast = yBegin
 }, false);
 
 setMap("grass");
