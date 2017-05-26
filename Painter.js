@@ -19,9 +19,9 @@ var yEnd = 0
 
 var xShift = 0
 var yShift = 0
-var shiftCoef = 3
+var shiftCoef = FIELD_HEIGHT
 
-var time = 5
+var time = 35
 
 var map = [];
 const tilesTypes = ["grass", "path", "water"];
@@ -114,6 +114,10 @@ canvas.addEventListener('mousemove', function(evt) {
   let mousePos = getMousePos(canvas, evt)
   mouseX = mousePos.x
   mouseY = mousePos.y
+  drawGivenField()
+}, false);
+
+function drawGivenField() {
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
       xBegin = x*FIELD_HEIGHT
@@ -133,7 +137,7 @@ canvas.addEventListener('mousemove', function(evt) {
       }
     }
   }
-}, false);
+}
 
 canvas.addEventListener('click', function(evt) {
   let clickX = evt.clientX
@@ -143,12 +147,6 @@ canvas.addEventListener('click', function(evt) {
     console.log('x ' + xBegin, 'y ' + yBegin)
   }
 }, false);
-
-mainGameCycle = setInterval(function() {
-  moveMap()
-  ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
-  drawField()
-}, time)
 
 function moveMap() {
   if(mouseX <= FIELD_HEIGHT && mouseX >= 0)
@@ -164,3 +162,8 @@ function moveMap() {
 setMap("grass");
 generateMap()
 drawField()
+
+mainGameCycle = setInterval(function() {
+  moveMap()
+  drawGivenField()
+}, time)
