@@ -1,22 +1,27 @@
 var canvas = document.getElementById("map_id");
 var ctx = canvas.getContext("2d");
 
-const FIELD_HEIGHT = 32;
+var canvasHeight = canvas.clientHeight
+var canvasWidth = canvas.clientWidth
+
+const FIELD_HEIGHT = 32
 
 const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1]
 const HEIGHT = 30;
 const WIDTH = 30;
 
-var mouseX = 0
-var mouseY = 0
+var mouseX = -1
+var mouseY = -1
 var xBegin = 0
 var xEnd = 0
 var yBegin = 0
 var yEnd = 0
+
 var xShift = 0
 var yShift = 0
+var shiftCoef = 3
 
-var isPressed = false
+var time = 5
 
 var map = [];
 const tilesTypes = ["grass", "path", "water"];
@@ -125,10 +130,6 @@ canvas.addEventListener('mousemove', function(evt) {
          ctx.globalAlpha = 1
          x = HEIGHT
          y = WIDTH
-         if(isPressed) {
-           xShift = mouseX - 500
-           yShift = mouseY - 500
-         }
       }
     }
   }
@@ -143,13 +144,22 @@ canvas.addEventListener('click', function(evt) {
   }
 }, false);
 
-canvas.addEventListener('mousedown', function(evt) {
-  isPressed = true
-}, false);
+mainGameCycle = setInterval(function() {
+  moveMap()
+  ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
+  drawField()
+}, time)
 
-canvas.addEventListener('mouseup', function(evt) {
-  isPressed = false
-}, false);
+function moveMap() {
+  if(mouseX <= FIELD_HEIGHT && mouseX >= 0)
+    xShift += shiftCoef
+  else if(mouseX >= canvasWidth - FIELD_HEIGHT)
+    xShift -= shiftCoef
+  if(mouseY <= FIELD_HEIGHT && mouseY >= 0)
+    yShift += shiftCoef
+  else if(mouseY >= canvasHeight - FIELD_HEIGHT)
+    yShift -= shiftCoef
+}
 
 setMap("grass");
 generateMap()
