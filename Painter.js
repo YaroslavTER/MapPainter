@@ -7,8 +7,8 @@ var canvasWidth = canvas.clientWidth
 const FIELD_HEIGHT = 32
 
 const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1]
-const HEIGHT = 30;
-const WIDTH = 30;
+const HEIGHT = 30
+const WIDTH = 30
 
 var mouseX = -1
 var mouseY = -1
@@ -32,13 +32,13 @@ function setMap(element) {
   }
 }
 
-function drawField(field, mainColor, colors) {
+function drawField(xShiftInput, yShiftInput) {
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
       ctx.putImageData(
         tilesData[map[x][y]],
-        x * FIELD_HEIGHT + xShift,
-        y * FIELD_HEIGHT + yShift
+        x * FIELD_HEIGHT + xShiftInput,
+        y * FIELD_HEIGHT + yShiftInput
       );
     }
   }
@@ -127,7 +127,7 @@ function drawGivenField() {
       if(mouseX >= xBegin && mouseX <= xEnd &&
          mouseY >= yBegin && mouseY <= yEnd) {
          ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
-         drawField()
+         composeMaps()
          ctx.fillStyle = 'black'
          ctx.globalAlpha = 0.3
          ctx.fillRect(xBegin, yBegin, FIELD_HEIGHT, FIELD_HEIGHT)
@@ -137,6 +137,21 @@ function drawGivenField() {
       }
     }
   }
+}
+
+function composeMaps() {
+  //drawField(xShift+FIELD_HEIGHT*WIDTH*counter, yShift)
+  drawField(xShift, yShift)
+
+  drawField(xShift+FIELD_HEIGHT*WIDTH, yShift+FIELD_HEIGHT*HEIGHT)
+  drawField(xShift, yShift+FIELD_HEIGHT*HEIGHT)
+  drawField(xShift+FIELD_HEIGHT*WIDTH, yShift)
+  drawField(xShift+FIELD_HEIGHT*WIDTH, yShift-FIELD_HEIGHT*HEIGHT)
+
+  drawField(xShift-FIELD_HEIGHT*WIDTH, yShift-FIELD_HEIGHT*HEIGHT)
+  drawField(xShift, yShift-FIELD_HEIGHT*HEIGHT)
+  drawField(xShift-FIELD_HEIGHT*WIDTH, yShift)
+  drawField(xShift-FIELD_HEIGHT*WIDTH, yShift+FIELD_HEIGHT*HEIGHT)
 }
 
 canvas.addEventListener('click', function(evt) {
@@ -161,7 +176,7 @@ function moveMap() {
 
 setMap("grass");
 generateMap()
-drawField()
+drawField(xShift, yShift)
 
 mainGameCycle = setInterval(function() {
   moveMap()
