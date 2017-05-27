@@ -5,6 +5,7 @@ var canvasHeight = canvas.clientHeight
 var canvasWidth = canvas.clientWidth
 
 const FIELD_HEIGHT = 32
+const mod = (a, b) => ((a%b)+b)%b
 
 const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1]
 const HEIGHT = 30
@@ -21,14 +22,16 @@ var xShift = 0
 var yShift = 0
 var shiftCoef = FIELD_HEIGHT
 
+var counter = 0
+
 var time = 35
 
-var map = [];
-const tilesTypes = ["grass", "path", "water"];
+var map = []
+const tilesTypes = ["grass", "path", "water"]
 
 function setMap(element) {
   for (let x = 0; x < HEIGHT; x++) {
-    map[x] = new Array(WIDTH).fill(element);
+    map[x] = new Array(WIDTH).fill(element)
   }
 }
 
@@ -36,10 +39,10 @@ function drawField(xShiftInput, yShiftInput) {
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
       ctx.putImageData(
-        tilesData[map[x][y]],
-        x * FIELD_HEIGHT + xShiftInput,
-        y * FIELD_HEIGHT + yShiftInput
-      );
+        tilesData[map[mod(x - xShiftInput,HEIGHT)][mod(y - yShiftInput, WIDTH)]],
+        x * FIELD_HEIGHT,
+        y * FIELD_HEIGHT
+      )
     }
   }
 }
@@ -127,7 +130,7 @@ function drawGivenField() {
       if(mouseX >= xBegin && mouseX <= xEnd &&
          mouseY >= yBegin && mouseY <= yEnd) {
          ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
-         composeMaps()
+         drawField(xShift , yShift)
          ctx.fillStyle = 'black'
          ctx.globalAlpha = 0.3
          ctx.fillRect(xBegin, yBegin, FIELD_HEIGHT, FIELD_HEIGHT)
@@ -137,21 +140,6 @@ function drawGivenField() {
       }
     }
   }
-}
-
-function composeMaps() {
-  //drawField(xShift+FIELD_HEIGHT*WIDTH*counter, yShift)
-  drawField(xShift, yShift)
-
-  drawField(xShift+FIELD_HEIGHT*WIDTH, yShift+FIELD_HEIGHT*HEIGHT)
-  drawField(xShift, yShift+FIELD_HEIGHT*HEIGHT)
-  drawField(xShift+FIELD_HEIGHT*WIDTH, yShift)
-  drawField(xShift+FIELD_HEIGHT*WIDTH, yShift-FIELD_HEIGHT*HEIGHT)
-
-  drawField(xShift-FIELD_HEIGHT*WIDTH, yShift-FIELD_HEIGHT*HEIGHT)
-  drawField(xShift, yShift-FIELD_HEIGHT*HEIGHT)
-  drawField(xShift-FIELD_HEIGHT*WIDTH, yShift)
-  drawField(xShift-FIELD_HEIGHT*WIDTH, yShift+FIELD_HEIGHT*HEIGHT)
 }
 
 canvas.addEventListener('click', function(evt) {
