@@ -36,6 +36,7 @@ function setMap(element) {
 }
 
 function drawField(xShiftInput, yShiftInput) {
+  console.log(mod(xShiftInput,HEIGHT))
   for (let x = 0; x < HEIGHT; x++) {
     for (let y = 0; y < WIDTH; y++) {
       ctx.putImageData(
