@@ -16,7 +16,7 @@ const mapSettings = {
     types: ["grass", "path", "water"]
   },
   width: 30,
-  height: 30
+  height: 40
 };
 
 const mapState = {
@@ -40,7 +40,7 @@ const getRandomFromArray = array =>
 
 function initMap() {
   const newMap = [];
-  for (let i = 0; i < mapSettings.width; i++) {
+  for (let i = 0; i < mapSettings.height; i++) {
     newMap[i] = [];
   }
   map = newMap;
