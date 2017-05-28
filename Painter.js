@@ -40,7 +40,7 @@ const getRandomFromArray = array =>
 
 function initMap() {
   const newMap = [];
-  for (let i = 0; i < mapSettings.width; i++) {
+  for (let i = 0; i < mapSettings.height; i++) {
     newMap[i] = [];
   }
   map = newMap;
