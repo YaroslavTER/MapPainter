@@ -1,173 +1,135 @@
-var canvas = document.getElementById("map_id");
-var ctx = canvas.getContext("2d");
+var c = document.getElementById("map_id");
+var ctx = c.getContext("2d");
 
-var canvasHeight = canvas.clientHeight
-var canvasWidth = canvas.clientWidth
+const gameSetting = {
+  refreshTime: 45
+};
 
-const FIELD_HEIGHT = 32
-const mod = (a, b) => ((a%b)+b)%b
+const canvasSettings = {
+  width: c.clientWidth,
+  height: c.clientHeight
+};
 
-const GET_RANDOM = array => array[~~(Math.random() * (array.length - 1)) + 1]
-const HEIGHT = 30
-const WIDTH = 30
+const mapSettings = {
+  cell: {
+    size: 32,
+    types: ["grass", "path", "water"]
+  },
+  width: 30,
+  height: 40
+};
 
-var mouseX = -1
-var mouseY = -1
-var xBegin = 0
-var xEnd = 0
-var yBegin = 0
-var yEnd = 0
-
-var xShift = 0
-var yShift = 0
-var shiftCoef = FIELD_HEIGHT
-
-var counter = 0
-
-var time = 35
-
-var map = []
-const tilesTypes = ["grass", "path", "water"]
-
-function setMap(element) {
-  for (let x = 0; x < HEIGHT; x++) {
-    map[x] = new Array(WIDTH).fill(element)
+const mapState = {
+  /** Map position relative to (0,0) */
+  position: {
+    x: 0,
+    y: 0
   }
+};
+
+const mouseState = {
+  x: -1,
+  y: -1
+};
+
+let map = [];
+
+const mod = (a, b) => (a % b + b) % b;
+const getRandomFromArray = array =>
+  array[~~(Math.random() * (array.length - 1)) + 1];
+
+function initMap() {
+  const newMap = [];
+  for (let i = 0; i < mapSettings.width; i++) {
+    newMap[i] = [];
+  }
+  map = newMap;
 }
 
-function drawField(xShiftInput, yShiftInput) {
-  console.log(mod(xShiftInput,HEIGHT))
-  for (let x = 0; x < HEIGHT; x++) {
-    for (let y = 0; y < WIDTH; y++) {
+
+function drawMap() {
+  const height = mapSettings.height;
+  const width = mapSettings.width;
+  const cellSize = mapSettings.cell.size;
+  const offsetX = mapState.position.x;
+  const offsetY = mapState.position.y;
+  for (let x = 0; x < height; x++) {
+    for (let y = 0; y < width; y++) {
       ctx.putImageData(
-        tilesData[map[mod(x - xShiftInput,HEIGHT)][mod(y - yShiftInput, WIDTH)]],
-        x * FIELD_HEIGHT,
-        y * FIELD_HEIGHT
-      )
+        tilesData[map[mod(x - offsetX, height)][mod(y - offsetY, width)]],
+        x * cellSize,
+        y * cellSize
+      );
     }
   }
-}
-
-function getPosition() {
-  return randFor(0, FIELD_HEIGHT - PART_HEIGHT);
-}
-
-function generatePathFrom(x, y) {
-  let direction = startDirection(x, y);
-  let turnCoef = HEIGHT / 2;
-  let steps = randFor(1, turnCoef);
-  while (continueStep(x, y)) {
-    let step = 0;
-    while (step < steps && continueStep(x, y)) {
-      map[x][y] = "path";
-      if (direction == 0) x++;
-      else if (direction == 1) x--;
-      else if (direction == 2) y++;
-      else if (direction == 3) y--;
-      step++;
-    }
-    step = 0;
-    steps = randFor(1, turnCoef);
-    direction = randFor(0, 3);
-  }
-}
-/*
-	0 - down
-	1 - up
-	2 - right
-	3 - left
-*/
-function startDirection(x, y) {
-  if (x == 0) return 0;
-  else if (x == HEIGHT - 1) return 1;
-  else if (y == 0) return 2;
-  else if (y == WIDTH - 1) return 3;
-}
-
-function randFor(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-function continueStep(x, y) {
-  return x < HEIGHT && y < WIDTH && x >= 0 && y >= 0
 }
 
 function generateMap() {
-  noise.seed(Math.random())
-  let x = 3
-  let y = 0
-  let i = 0
-  for (let x = 0; x < HEIGHT; x++) {
-    for (let y = 0; y < WIDTH; y++) {
-      let value = noise.simplex2(x / 40, y / 40)
-      value = Math.abs(~~(value * 5))
-      map[x][y] = tilesTypes[value] || "path"
+  noise.seed(Math.random());
+  let x = 3;
+  let y = 0;
+  let i = 0;
+  for (let x = 0; x < mapSettings.height; x++) {
+    for (let y = 0; y < mapSettings.width; y++) {
+      let value = noise.simplex2(x / 40, y / 40);
+      value = Math.abs(~~(value * 5));
+      map[x][y] = mapSettings.cell.types[value] || "path";
     }
   }
 }
 
-function getMousePos(canvas, evt) {
-  var rect = canvas.getBoundingClientRect()
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
-  };
+function updateMousePosition(e) {
+  const rect = c.getBoundingClientRect();
+  mouseState.x = e.clientX - rect.left;
+  mouseState.y = e.clientY - rect.top;
 }
 
-canvas.addEventListener('mousemove', function(evt) {
-  let mousePos = getMousePos(canvas, evt)
-  mouseX = mousePos.x
-  mouseY = mousePos.y
-  drawGivenField()
-}, false);
+c.addEventListener(
+  "mousemove",
+  e => {
+    updateMousePosition(e);
+  },
+  false
+);
 
-function drawGivenField() {
-  for (let x = 0; x < HEIGHT; x++) {
-    for (let y = 0; y < WIDTH; y++) {
-      xBegin = x*FIELD_HEIGHT
-      xEnd = x*FIELD_HEIGHT + FIELD_HEIGHT
-      yBegin = y*FIELD_HEIGHT
-      yEnd = y*FIELD_HEIGHT + FIELD_HEIGHT
-      if(mouseX >= xBegin && mouseX <= xEnd &&
-         mouseY >= yBegin && mouseY <= yEnd) {
-         ctx.clearRect(0, 0, WIDTH*FIELD_HEIGHT, HEIGHT*FIELD_HEIGHT)
-         drawField(xShift , yShift)
-         ctx.fillStyle = 'black'
-         ctx.globalAlpha = 0.3
-         ctx.fillRect(xBegin, yBegin, FIELD_HEIGHT, FIELD_HEIGHT)
-         ctx.globalAlpha = 1
-         x = HEIGHT
-         y = WIDTH
-      }
-    }
-  }
+function drawMouseHover() {
+  const cellSize = mapSettings.cell.size;
+  const { x, y } = mouseState;
+  const hoverX = x - x % cellSize;
+  const hoverY = y - y % cellSize;
+
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  ctx.fillRect(hoverX, hoverY, cellSize, cellSize);
 }
 
-canvas.addEventListener('click', function(evt) {
-  let clickX = evt.clientX
-  let clickY = evt.clientY
-  if(clickX >= xBegin && clickX <= xEnd + FIELD_HEIGHT &&
-     clickY >= yBegin && clickY <= yEnd + FIELD_HEIGHT) {
-    console.log('x ' + xBegin, 'y ' + yBegin)
-  }
-}, false);
+c.addEventListener(
+  "click",
+  function(evt) {
+    let clickX = evt.clientX;
+    let clickY = evt.clientY;
+
+    console.log("x " + clickX, "y " + clickY);
+  },
+  false
+);
 
 function moveMap() {
-  if(mouseX <= FIELD_HEIGHT && mouseX >= 0)
-    xShift += shiftCoef
-  else if(mouseX >= canvasWidth - FIELD_HEIGHT)
-    xShift -= shiftCoef
-  if(mouseY <= FIELD_HEIGHT && mouseY >= 0)
-    yShift += shiftCoef
-  else if(mouseY >= canvasHeight - FIELD_HEIGHT)
-    yShift -= shiftCoef
+  const shiftBy = 1;
+  const { x, y } = mouseState;
+  const { width, height } = canvasSettings;
+  const cellSize = mapSettings.cell.size;
+  if (x <= cellSize && x >= 0) mapState.position.x += shiftBy;
+  else if (x >= width - cellSize) mapState.position.x -= shiftBy;
+  if (y <= cellSize && y >= 0) mapState.position.y += shiftBy;
+  else if (y >= height - cellSize) mapState.position.y -= shiftBy;
 }
 
-setMap("grass");
-generateMap()
-drawField(xShift, yShift)
+initMap();
+generateMap();
+drawMap();
 
 mainGameCycle = setInterval(function() {
-  moveMap()
-  drawGivenField()
-}, time)
+  moveMap();
+  drawMap();
+  drawMouseHover();
+}, gameSetting.refreshTime);
