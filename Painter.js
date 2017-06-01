@@ -13,14 +13,18 @@ const canvasSettings = {
 const mapSettings = {
   cell: {
     size: 32,
-    types: ["grass", "path", "water"]
+    types: ["water", "path", "grass", "grass",
+            "grass", "rock", "ironOre", "diamondOre"]
   },
-  width: 30,
-  height: 40
+  width: 400,
+  height: 400
 };
 
+/**
+Map position initially is (0,0)
+Camera position
+*/
 const mapState = {
-  /** Map position relative to (0,0) */
   position: {
     x: 0,
     y: 0
@@ -46,7 +50,6 @@ function initMap() {
   map = newMap;
 }
 
-
 function drawMap() {
   const height = mapSettings.height;
   const width = mapSettings.width;
@@ -66,16 +69,22 @@ function drawMap() {
 
 function generateMap() {
   noise.seed(Math.random());
-  let x = 3;
-  let y = 0;
+  mapState.position.x = getRandomFom(0, mapSettings.height - 1)
+  mapState.position.y = getRandomFom(0, mapSettings.width - 1)
   let i = 0;
+  let coef = 40;
+  let typesLength = mapSettings.cell.types.length;
   for (let x = 0; x < mapSettings.height; x++) {
     for (let y = 0; y < mapSettings.width; y++) {
-      let value = noise.simplex2(x / 40, y / 40);
-      value = Math.abs(~~(value * 5));
-      map[x][y] = mapSettings.cell.types[value] || "path";
+      let value = noise.simplex2(x / coef, y / coef);
+      value = Math.abs(~~(value * typesLength));
+      map[x][y] = mapSettings.cell.types[value];
     }
   }
+}
+
+function getRandomFom(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function updateMousePosition(e) {
