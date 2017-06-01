@@ -10,22 +10,18 @@ const canvasSettings = {
   height: c.clientHeight
 };
 
-const mapSettings = {
+var mapSettings = {
   cell: {
     size: 32,
-    types: ["water", "path", "grass", "grass",
-            "grass", "rock", "ironOre", "diamondOre"]
+    types: []
+
   },
   width: 400,
-  height: 400
+  height: 200
 };
 
-/**
-Map position initially is (0,0)
-Camera position
-*/
 const mapState = {
-  position: {
+  position: {//camera position
     x: 0,
     y: 0
   }
@@ -41,6 +37,14 @@ let map = [];
 const mod = (a, b) => (a % b + b) % b;
 const getRandomFromArray = array =>
   array[~~(Math.random() * (array.length - 1)) + 1];
+
+function setTypes(inputTypes) {
+  for (let type of inputTypes) {
+    for(let i = 0; i < type.repeats; i++) {
+      mapSettings.cell.types.push(type.name);
+    }
+  }
+}
 
 function initMap() {
   const newMap = [];
@@ -132,6 +136,19 @@ function moveMap() {
   if (y <= cellSize && y >= 0) mapState.position.y += shiftBy;
   else if (y >= height - cellSize) mapState.position.y -= shiftBy;
 }
+
+setTypes(
+          [
+            { name: "water", repeats: 6 },
+            { name: "sand", repeats: 2 },
+            { name: "grass", repeats: 6 },
+            { name: "rock", repeats: 3 },
+            { name: "ironOre", repeats: 1 },
+            { name: "goldOre", repeats: 1 },
+            { name: "coalOre", repeats: 1 },
+            { name: "diamondOre", repeats: 2 }
+          ]
+        )
 
 initMap();
 generateMap();
