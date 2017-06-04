@@ -14,10 +14,9 @@ var mapSettings = {
   cell: {
     size: 32,
     types: []
-
   },
   width: 400,
-  height: 200
+  height: 400
 };
 
 const mapState = {
@@ -54,6 +53,17 @@ function initMap() {
   map = newMap;
 }
 
+function setVisibility(cellTypeName, inputVisibility){
+  for (let x = 0; x < mapSettings.height; x++) {
+    for (let y = 0; y < mapSettings.width; y++) {
+      let cell = map[x][y];
+      let name = cell.cellType;
+      if(name == cellTypeName)
+        cell.visibility = inputVisibility;
+    }
+  }
+}
+
 function drawMap() {
   const height = mapSettings.height;
   const width = mapSettings.width;
@@ -62,8 +72,13 @@ function drawMap() {
   const offsetY = mapState.position.y;
   for (let x = 0; x < height; x++) {
     for (let y = 0; y < width; y++) {
+      let cell = map[mod(x - offsetX, height)][mod(y - offsetY, width)];
+      let cellType = "";
+      if(cell.visibility == "visible")
+        cellType = cell.cellType;
+      else cellType = "rock";
       ctx.putImageData(
-        tilesData[map[mod(x - offsetX, height)][mod(y - offsetY, width)]],
+        tilesData[cellType],
         x * cellSize,
         y * cellSize
       );
@@ -82,7 +97,10 @@ function generateMap() {
     for (let y = 0; y < mapSettings.width; y++) {
       let value = noise.simplex2(x / coef, y / coef);
       value = Math.abs(~~(value * typesLength));
-      map[x][y] = mapSettings.cell.types[value];
+      map[x][y] = {
+                    cellType: mapSettings.cell.types[value],
+                    visibility: "visible"
+                  };
     }
   }
 }
@@ -120,7 +138,7 @@ c.addEventListener(
   function(evt) {
     let clickX = evt.clientX;
     let clickY = evt.clientY;
-
+    counter++;
     console.log("x " + clickX, "y " + clickY);
   },
   false
@@ -137,15 +155,35 @@ function moveMap() {
   else if (y >= height - cellSize) mapState.position.y -= shiftBy;
 }
 
+function drawMiniMap() {
+  let size = 0.5;
+  for (let x = 0; x < mapSettings.height; x++) {
+    for (let y = 0; y < mapSettings.width; y++) {
+      let cell = map[x][y];
+      let xCoord = x*size;
+      let yCoord = canvasSettings.height - y*size;
+      if(cell.cellType == "grass")
+        ctx.fillStyle = "#636363";
+      else if(cell.cellType == "water")
+        ctx.fillStyle = "#a0a0a0";
+      ctx.fillRect(xCoord, yCoord, size, size);
+    }
+  }
+}
+
 setTypes(
           [
             { name: "water", repeats: 6 },
             { name: "sand", repeats: 2 },
-            { name: "grass", repeats: 6 },
-            { name: "rock", repeats: 3 },
-            { name: "ironOre", repeats: 1 },
-            { name: "goldOre", repeats: 1 },
+            { name: "grass", repeats: 5 },
+            { name: "tree", repeats: 2 },
+            { name: "grass", repeats: 2 },
+            { name: "tree", repeats: 1 },
+            { name: "rock", repeats: 2 },
             { name: "coalOre", repeats: 1 },
+            { name: "ironOre", repeats: 1 },
+            { name: "rock", repeats: 2 },
+            { name: "goldOre", repeats: 1 },
             { name: "diamondOre", repeats: 2 }
           ]
         )
@@ -153,9 +191,11 @@ setTypes(
 initMap();
 generateMap();
 drawMap();
+drawMiniMap();
 
 mainGameCycle = setInterval(function() {
   moveMap();
   drawMap();
   drawMouseHover();
+  drawMiniMap();
 }, gameSetting.refreshTime);
