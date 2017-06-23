@@ -2,11 +2,11 @@ const settings = {
   /**
    * Map width in tiles
    */
-  width: 400,
+  width: 100,
   /**
    * Map height in tiles
    */
-  height: 400,
+  height: 100,
   cell: {
     /**
      * Cell side size in pixels

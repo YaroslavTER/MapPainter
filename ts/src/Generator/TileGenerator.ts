@@ -1,3 +1,5 @@
+import ToImage from "../ToImage/ToImage";
+
 function TileGenerator() {
   const c = document.createElement("canvas");
   const ctx = c.getContext("2d");
@@ -26,9 +28,7 @@ function TileGenerator() {
         ctx.fillRect(x * coef, y * coef, coef, coef);
       }
     }
-    const img = new Image();
-    img.src = c.toDataURL("image/png");
-    return img;
+    return ToImage().toImage(c);
   }
 
   function generate() {

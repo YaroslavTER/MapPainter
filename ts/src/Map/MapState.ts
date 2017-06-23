@@ -5,4 +5,4 @@ interface MapState {
   }
 };
 
-export default mapState;
+export default MapState;

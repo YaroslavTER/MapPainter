@@ -48,7 +48,6 @@ function MapGenerator(): Map {
       };
     }
   }
-
   return mapObject;
 }
 
