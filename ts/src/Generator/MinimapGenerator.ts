@@ -25,6 +25,10 @@ function MinimapGenerator() {
         ctx.fillRect(xCoord, yCoord, size, size);
       }
     }
+    ctx.fillStyle = "black";
+    ctx.rect(1, settings.canvas.height - settings.height*size - 1,
+      settings.width*size, settings.height*size);
+    ctx.stroke();
     return  ToImage().toImage(c);
   }
 

@@ -1,6 +1,7 @@
 import settings from "../settings";
+import Mod from "../Mod";
 
-const mod = (a, b) => (a % b + b) % b;
+const mod = Mod();
 
 function Canvas() {
   const c = document.querySelector("canvas");
@@ -25,17 +26,38 @@ function Canvas() {
     }
   }
 
-  function drawCurrentPosition(minimapState: MapState) {
+  function calculateCurrentPosition(minimapState: MapState) {
     let mSize = 2;
+    let widthToSubtract = 0;
+    let heightToSubtract = 0;
     let size = settings.cell.size;
     let height = mSize*settings.canvas.height/size;
     let width = mSize*settings.canvas.width/size;
-    let x = minimapState.position.x*mSize/size*size;
-    let y = (minimapState.position.y*mSize + settings.canvas.height -
+    let mWidth = settings.width*mSize;
+    let mHeight = settings.height*mSize;
+    let xDisp = mod(minimapState.position.x*mSize, mWidth);
+    let yDisp = mod(minimapState.position.y*mSize, mHeight);
+    let x = xDisp/size*size;
+    let y = (yDisp + settings.canvas.height -
       settings.height*mSize)/size*size;
+    if(xDisp > mWidth - width)
+      widthToSubtract = Math.abs(mWidth - width - xDisp);
+    if(yDisp > mHeight - height)
+      heightToSubtract = Math.abs(mHeight - height - yDisp);
+    drawCurrentPosition(x, y, mSize, width, height,
+      widthToSubtract, heightToSubtract);
+  }
+
+  function drawCurrentPosition(x, y, mSize, width, height,
+    widthToSubtract, heightToSubtract) {
     ctx.fillStyle = "white";
     ctx.globalAlpha = 0.5;
-    ctx.fillRect(x, y, height, width);
+    ctx.fillRect(x, y, width - widthToSubtract, height - heightToSubtract);
+    ctx.fillRect(x - settings.width*mSize, y, width, height);
+    ctx.fillRect(x, y - settings.height*mSize - heightToSubtract + height,
+      width - widthToSubtract, heightToSubtract);
+    ctx.fillRect(x - settings.width*mSize, y - settings.height*mSize - heightToSubtract + height,
+      width, heightToSubtract);
     ctx.globalAlpha = 1;
   }
 
@@ -61,7 +83,7 @@ function Canvas() {
     drawMap(map, mapState);
     drawMouseHover(mouseState);
     drawMinimap(minimap);
-    drawCurrentPosition(minimapState);
+    calculateCurrentPosition(minimapState);
   }
 
   return {
