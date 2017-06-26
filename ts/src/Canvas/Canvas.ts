@@ -1,14 +1,13 @@
 import settings from "../settings";
 import Mod from "../Mod";
 
-const mod = Mod();
-
 function Canvas() {
   const c = document.querySelector("canvas");
   const ctx = c.getContext("2d");
   c.width = settings.canvas.width;
   c.height = settings.canvas.height;
 
+  const mod = Mod();
   const { height, width, cell: { size } } = settings;
 
   function drawMap(mapObj: Map, mapState: MapState) {
@@ -44,20 +43,25 @@ function Canvas() {
       widthToSubtract = Math.abs(mWidth - width - xDisp);
     if(yDisp > mHeight - height)
       heightToSubtract = Math.abs(mHeight - height - yDisp);
-    drawCurrentPosition(x, y, mSize, width, height,
-      widthToSubtract, heightToSubtract);
+    /*drawCurrentPosition(x, y, mSize, width, height,
+      widthToSubtract, heightToSubtract);*/
   }
 
-  function drawCurrentPosition(x, y, mSize, width, height,
-    widthToSubtract, heightToSubtract) {
+  function drawCurrentPosition(currentPosition: CurrentPoition) {
+    let x = currentPosition.position.x;
+    let y = currentPosition.position.y;
+    let mSize = currentPosition.cell.size;
+    let width = currentPosition.width;
+    let height = currentPosition.height;
+    let widthToSubtract = currentPosition.toSubtract.width;
+    let heightToSubtract = currentPosition.toSubtract.height;
+    let yCoord = y - settings.height*mSize - heightToSubtract + height;
     ctx.fillStyle = "white";
     ctx.globalAlpha = 0.5;
     ctx.fillRect(x, y, width - widthToSubtract, height - heightToSubtract);
     ctx.fillRect(x - settings.width*mSize, y, width, height);
-    ctx.fillRect(x, y - settings.height*mSize - heightToSubtract + height,
-      width - widthToSubtract, heightToSubtract);
-    ctx.fillRect(x - settings.width*mSize, y - settings.height*mSize - heightToSubtract + height,
-      width, heightToSubtract);
+    ctx.fillRect(x, yCoord, width - widthToSubtract, heightToSubtract);
+    ctx.fillRect(x - settings.width*mSize, yCoord, width, heightToSubtract);
     ctx.globalAlpha = 1;
   }
 
@@ -79,11 +83,12 @@ function Canvas() {
   }
 
   function draw(map: Map, minimap: HTMLImageElement, mouseState,
-    mapState: MapState, minimapState: MapState) {
+    mapState: MapState, minimapState: MapState, currentPosition: CurrentPosition) {
     drawMap(map, mapState);
     drawMouseHover(mouseState);
     drawMinimap(minimap);
-    calculateCurrentPosition(minimapState);
+    drawCurrentPosition(currentPosition);
+    //calculateCurrentPosition(minimapState);
   }
 
   return {
