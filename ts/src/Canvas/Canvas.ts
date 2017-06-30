@@ -14,15 +14,17 @@ function Canvas() {
     const map = mapObj.map;
     const offsetX = mapState.position.x;
     const offsetY = mapState.position.y;
-    for (let x = 0; x < height; x++) {
-      for (let y = 0; y < width; y++) {
+    ctx.clearRect(0, 0, (width - 1)*size, (height - 1)*size);
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
         ctx.drawImage(
-          map[mod(x - offsetX, height)][mod(y - offsetY, width)].image,
+          map[mod(x - offsetX, width)][mod(y - offsetY, height)].image,
           x * size,
           y * size
         );
       }
     }
+
   }
 
   function drawCurrentPosition(currentPosition: CurrentPoition) {
@@ -60,13 +62,27 @@ function Canvas() {
     );
   }
 
+  function drawArea(mapState: MapState, currentPosition: CurrentPosition) {
+    let x = 0;
+    let y = 0;
+    let areaX = x - x % size;
+    let areaY = y - y % size;
+    let offsetX = mapState.position.x;
+    let offsetY = mapState.position.y;
+    ctx.strokeStyle = "#ff0000";
+    ctx.lineWidth = 5;
+    ctx.strokeRect(mod((areaX + offsetX)*size, width*size),
+      mod((areaY + offsetY)*size, height*size), 10*size, 10*size);
+  }
+
   function draw(map: Map, minimap: HTMLImageElement, mouseState,
-    mapState: MapState, minimapState: MapState, currentPosition: CurrentPosition) {
+    mapState: MapState, minimapState: MapState,
+    currentPosition: CurrentPosition) {
     drawMap(map, mapState);
     drawMouseHover(mouseState);
     drawMinimap(minimap);
     drawCurrentPosition(currentPosition);
-    //calculateCurrentPosition(minimapState);
+    drawArea(mapState, currentPosition);
   }
 
   return {

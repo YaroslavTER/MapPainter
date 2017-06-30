@@ -13,10 +13,12 @@ const canvas = Canvas();
 const mouseState = Listeners();
 const mapMover = MapMover();
 const calculateCurrentPosition = CalculateCurrentPosition();
+const initialX = getRandomFom(0, settings.width - 1);
+const initialY = getRandomFom(0, settings.height - 1);
 const mapState: MapState = {
   position: {
-    x: getRandomFom(0, settings.width - 1),
-    y: getRandomFom(0, settings.height - 1)
+    x: initialX,
+    y: initialY
   }
 };
 const minimapState: MapState = {
@@ -31,6 +33,7 @@ function getRandomFom(min, max) {
 }
 
 setInterval(function() {
-  canvas.draw(map, minimap, mouseState, mapState, minimapState, calculateCurrentPosition.calculateCurrentPosition(minimapState));
+  canvas.draw(map, minimap, mouseState, mapState, minimapState,
+    calculateCurrentPosition.calculateCurrentPosition(minimapState));
   mapMover.move(mouseState, mapState, minimapState);
 }, settings.gameSettings.refreshTime);
